@@ -7,7 +7,8 @@ export const Home = () => {
 	const { store, actions } = useContext(Context);
 
 	return (
-		<div className="text-center mt-5">
+		<>
+		{store.auth == true ? <Navigate to ="/private"/> : <div className="text-center mt-5">
 			<h1>Hello Rigo!!</h1>
 			<p>
 				<img src={rigoImageUrl} />
@@ -21,6 +22,8 @@ export const Home = () => {
 					Read documentation
 				</a>
 			</p>
-		</div>
+		</div>}
+		
+		</>
 	);
 };

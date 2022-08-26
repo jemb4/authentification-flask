@@ -1,3 +1,5 @@
+import config from "../config.js"
+
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
@@ -13,7 +15,12 @@ const getState = ({ getStore, getActions, setStore }) => {
 					background: "white",
 					initial: "white"
 				}
-			]
+			],
+			message: null,
+			name: null,
+			auth: false,
+			token: "token",
+			userToken: localStorage.getItem("jwt-token") ?? "",
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -46,7 +53,93 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 				//reset the global store
 				setStore({ demo: demo });
-			}
+			},
+			login: (email, password) => {
+				fetch(`${config.hostname}/api/login`, {
+					method: 'POST',
+					body: JSON.stringify({email, password}),
+					headers: {
+						'Content-Type': 'application/json'
+					}
+					
+				})
+				.then(res => {
+					if (res.status == 200){
+						setStore({auth: true})
+						setStore({name: email})
+					} else {
+						alert("Usuario o clave incorrectas")
+						return "Usuario o clave incorrectas"
+					}
+					return res.json()
+				})
+				.then(data => {
+					localStorage.setItem("token", data)
+					setStore({token: data})
+				})
+				.catch()
+			},
+			getToken: () => {
+				setStore({
+				  token: localStorage.getItem("jwt-token") ?? null,
+				});
+			  },
+
+			logout: () => {
+				localStorage.removeItem("token")
+				setStore({auth: false})
+				setStore({name: null})
+			},
+
+			signup: (email, password) => {
+				fetch(`${config.hostname}/api/signup`,{
+					method: 'POST',
+					body: JSON.stringify({email, password}),
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				})
+				.then(res => {
+					if (res.status == 200){
+						setStore({auth: true}) 
+						setStore({name: email})
+						
+					} else {
+						alert("This email already exist")
+						return "This email already exist"
+					}
+					return res.json()
+				})
+				.then(data =>{ 
+					localStorage.setItem("token", data)
+					setStore({token: data})
+				})
+			},
+
+			private: () => {
+				let tok = localStorage.getItem("token")
+				if(tok == getStore().token){
+
+				fetch(`${config.hostname}/api/private`,{
+					method: 'GET',
+					headers: {
+						"Content-Type": "application/json",
+						"Authorization": "Bearer " + tok
+					}
+				})
+				.then(res => {
+					if(res.status == 200){
+						console.log("Todo bien con el fetch en private")
+					} else{
+						console.log("Algo ha ido mal con el token y el require en el private Fetch")
+						// return res.json()
+					}
+
+				})} else {
+					return "Validation error flux 97"
+				}
+
+			},
 		}
 	};
 };
