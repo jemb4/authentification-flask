@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Context } from "../store/appContext";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const Signup = () => {
+  const navigate = useNavigate() ;
 	const { store, actions } = useContext(Context);
 	const [email, setEmail] = useState("")
 	const [pass, setPass] = useState("")
 
   return (
     <>
-      <div className="container w-50 mx-auto  vh-100 d-flex flex-column">
+    {store.auth == true ? navigate("/private") : <div className="container w-50 mx-auto  vh-100 d-flex flex-column">
         <h1 className="mt-5">Create an account!</h1>
         <label className="mt-5" htmlFor="email_input">
           Email:
@@ -37,6 +39,7 @@ export const Signup = () => {
           Submit
         </button>
       </div>
+}
     </>
   )
 };
